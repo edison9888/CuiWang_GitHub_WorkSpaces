@@ -22,10 +22,11 @@
 @interface GKListViewController : UIViewController <EGORefreshTableHeaderDelegate, EScrollerViewDelegate, UITableViewDataSource, UITableViewDelegate, MBProgressHUDDelegate>
 {
 	EGORefreshTableHeaderView *_refreshHeaderView;
-	UITableView *_tableViewList;
+    UIButton *loadMoreButton;
+    NSString *firstListNum;
+    NSString *lastListNum;
 	BOOL _reloading;
 	BOOL failed;
-	UILabel *topTimeLB;
 	NSString *_catid;
 	int timerValue;
 	MBProgressHUD *HUD;
@@ -39,8 +40,8 @@
 @property (strong, nonatomic) NSString *catid;
 @property (strong, nonatomic) IBOutlet UITableView *tableViewList;
 @property (nonatomic, strong) UIImageView *barView;
-@property (nonatomic, strong) NSArray *bannerArray;
-@property (nonatomic, strong) NSArray *bannerTextArray;
+@property (nonatomic, strong) NSMutableArray *bannerArray;
+@property (nonatomic, strong) NSMutableArray *bannerTextArray;
 @property (nonatomic, strong) NSMutableArray *list;
 - (void)viewWillCurrentView;
 - (void)viewDidCurrentView;

@@ -13,11 +13,12 @@
 @synthesize cTitle;
 @synthesize cnID;
 @synthesize cImage;
-
+@synthesize cCommntTime;
+@synthesize cTagID;
 
 -(NSString *) toString
 {
-    if(cID == nil || cTitle == nil || cnID == nil || cImage == nil)
+    if(cID == nil || cTitle == nil || cnID == nil || cImage == nil )
         {
             return @"内容不存在";
         } else {

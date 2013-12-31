@@ -79,7 +79,7 @@ static const CGFloat kPublicLeftMenuWidth = 218.0f;
     //--------在图标上显示数字
 //    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
     //开启ChuaiGuo会话，注册appToken
-    [ChuaiGuo Begin:@"1073029ecfc2d5395ea03c3cb30181fe"];
+//    [ChuaiGuo Begin:@"1073029ecfc2d5395ea03c3cb30181fe"];
     //其他必要的代码
     //远程日志
 //    CHLog(@"测试名称：%@",@"test");
@@ -126,6 +126,7 @@ static const CGFloat kPublicLeftMenuWidth = 218.0f;
 //    DLog(@"isIPhone5  %@",isIPhone5?@"YES":@"NO");
     
     UINavigationController *nv = [[UINavigationController alloc]initWithRootViewController:loadVC];
+    
     [nv setNavigationBarHidden:YES];
     [self.window setRootViewController:nv];
     [self.window makeKeyAndVisible];

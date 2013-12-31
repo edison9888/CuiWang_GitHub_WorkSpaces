@@ -6,7 +6,7 @@
 
 static const CGFloat kHeightOfTopScrollView = 33.0f;
 static const CGFloat kWidthOfButtonMargin = 16.0f;
-static const CGFloat kFontSizeOfTabButton = 17.0f;
+static const CGFloat kFontSizeOfTabButton = 16.0f;
 static const NSUInteger kTagOfRightSideButton = 999;
 
 @implementation GKSlideSwitchView

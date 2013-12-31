@@ -58,7 +58,7 @@
     for (int y = 0; y <= count / 4; y++) {
         for (int x = 0; x < 4; x++) {
             int i = 4 * y + x + 2;
-            if (i < count) {
+            if (i < [titlearray count]) {
                 NSString *titleLb = ((titleClass *)titlearray[i]).catname;
                 DLog(@" %@",titleLb);
                 int titleTag = [((titleClass *)titlearray[i]).catid intValue];

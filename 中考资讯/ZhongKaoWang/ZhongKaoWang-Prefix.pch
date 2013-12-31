@@ -1,0 +1,50 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#import <Availability.h>
+
+#define CONTENT @"我在 高考资讯 Iphone客户端 上看到了一篇关于高考的好文章,大家快来看看吧!\n"
+#define SHARE_URL @"http://gaokao.tqedu.com/"
+#define SAFE_RELEASE(obj) if(obj){[obj release];obj=nil;}
+
+
+
+////DEBUG  模式下打印日志,当前行
+#ifdef DEBUG
+#define MCRelease(x) [x release]
+#define DLog(...) NSLog(@"DLog日志:\n<*> 方法  :  %s\n<*> 行号  :  %d\n<*> 输出  :  %@", __PRETTY_FUNCTION__, __LINE__, [NSString    stringWithFormat:__VA_ARGS__])
+#else
+#define MCRelease(x) [x release], x = nil
+#define DLog(...) do { } while (0)
+
+#endif
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+#define isIPhone5 ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(640, 1136), [[UIScreen mainScreen] currentMode].size) : NO)
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+    #import<QuartzCore/QuartzCore.h>
+    #import<ShareSDK/ShareSDK.h>
+    #import"MBProgressHUD.h"
+    #import "UIViewController+MMDrawerController.h"
+    #import"RegexKitLite.h"
+    #import"ASIHTTPRequest.h"
+    #import"ASIFormDataRequest.h"
+    #import"VCPassValueDelegate.h"
+    #import "UIImageView+WebCache.h"
+    #import"UIViewExt.h"
+    #import"ALToastView.h"
+    #import"CW_Tools.h"
+    #import"UIUtils.h"
+    #import"Reachability.h"
+    #import"UIViewExt.h"
+    #import"WXHLGlobalUICommon.h"
+    #import"GRAlertView.h"
+#endif

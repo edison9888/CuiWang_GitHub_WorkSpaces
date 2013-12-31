@@ -27,21 +27,45 @@
         if (![LoadShoucangDB isTableOK:@"GaoKaoWang.sqlite"]) {
             LoadShoucangDB = [[myDB sharedInstance] initWithDBName:@"GaoKaoWang.sqlite"];
         }
+        
+        userIsLoaded = [[NSUserDefaults standardUserDefaults] boolForKey:@"UserIsLoaded"];
     }
     return self;
 }
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    DLog(@"viewDidAppear");
-    [self dataFromDB];
+    if (userIsLoaded) {
+        [self dataFromDB];
+    }
 }
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    self.view.backgroundColor = [UIColor whiteColor];
+    if (!userIsLoaded) {
+        self.myShouCangTableView.hidden = YES;
+        
+        button = [UIButton buttonWithType:UIButtonTypeSystem];
+        button.frame = CGRectMake(10, ScreenHeight/2, 300, 40);
+        [button addTarget:self action:@selector(loadClick) forControlEvents:UIControlEventTouchUpInside];
+        [button setTitle:@"请先登录!" forState:UIControlStateNormal];
+        [self.view addSubview:button];
+    } else {
+        button.hidden = YES;
+        self.myShouCangTableView.hidden = NO;
+    }
     // Do any additional setup after loading the view from its nib.
 }
+
+
+-(void)loadClick
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+//        <#code#>
+    }];
+}
+
 #pragma mark 加载数据
 -(void)dataFromDB
 {
@@ -70,23 +94,30 @@
         }
         [self.myShouCangTableView reloadData];
     } else {
-        if (!nothing) {
-            nothing = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"huiji.png"]];
-            nothing.frame = CGRectMake(161, 90, 100, 82);
-            lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 210, 320, 40)];
-            lb.textAlignment = 1;
-            lb.text = @"您还没有收藏任何内容哦!";
-        }
-        [self.view addSubview:lb];
-        [self.view addSubview:nothing];
+        [self addNothingImageV];
     }
-    
+    [self.myShouCangTableView reloadData];
 //    UIWebView *myWebView=[[UIWebView alloc] initWithFrame:CGRectMake(0, 100, 320, 300)];
 //    
 //    [myWebView loadHTMLString:sc_obj.SC_Content baseURL:nil];
 //    
 //    [self.view addSubview:myWebView];
 }
+
+-(void)addNothingImageV
+{
+    if (!nothing) {
+        nothing = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"huiji.png"]];
+        nothing.frame = CGRectMake(161, 90, 100, 82);
+        lb = [[UILabel alloc]initWithFrame:CGRectMake(0, 210, 320, 40)];
+        lb.textAlignment = 1;
+        lb.text = @"您还没有收藏任何内容哦!";
+    }
+    [self.view addSubview:lb];
+    [self.view addSubview:nothing];
+    self.myShouCangTableView.scrollEnabled = NO;//禁止滚动
+}
+
 #pragma mark - tableview delegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
@@ -106,7 +137,6 @@
         cell.backgroundColor = [CW_Tools colorFromHexRGB:@"f3f9f2"];
         cell.detailTextLabel.textColor = [UIColor lightGrayColor];
         cell.textLabel.numberOfLines = 0;
-        cell.textLabel.contentMode = UIViewContentModeScaleAspectFit;
     }
     cell.textLabel.text = cell_SC_OBJ.SC_Title;
     cell.detailTextLabel.text = [NSString stringWithFormat:@"收藏时间:  %@",cell_SC_OBJ.SC_Time];
@@ -163,6 +193,11 @@
         // Delete the row from the data source.
         [LoadShoucangDB deleteTableValue:@"ShouCang_Table" Where:@"SC_Title" IS:[NSString stringWithFormat:@"\'%@\'",sc_obj.SC_Title] And:NO Where2:nil IS2:nil];
         [ShoucangArray removeObjectAtIndex:indexPath.row];
+        
+        if (ShoucangArray.count == 0) {
+            [self addNothingImageV];
+        }
+        
         [self.myShouCangTableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
     }
     

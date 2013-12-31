@@ -146,7 +146,10 @@
  *    @param sender <#sender description#>
  */
 - (IBAction)shoucangButtonClick:(UIButton *)sender {
-	//------增加数据 练习错题 不需要这些功能
+    
+    if (UserIsLoaded) {
+        
+   
 	if (sender.selected) {
 		sender.selected = NO;
 		[CW_Tools ToastViewInView:self.view withText:@"  取消收藏!  "];
@@ -173,6 +176,9 @@
 			[CW_Tools ToastViewInView:self.view withText:@"  收藏失败!  "];
 		}
 	}
+    } else {
+        [CW_Tools ToastViewInView:self.view withText:@"请先登录后,再收藏!"];
+    }
 }
 
 /**
@@ -235,26 +241,61 @@
  */
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	//-----初始化数据库
-	if (![LoadContentDB isTableOK:@"GaoKaoWang.sqlite"]) {
-		LoadContentDB = [[myDB sharedInstance] initWithDBName:@"GaoKaoWang.sqlite"];
-	}
-	//------创建表
-	if (![LoadContentDB isTableOK:@"ShouCang_Table"]) {
-		[LoadContentDB createTable:@"ShouCang_Table" withArguments:@"SC_Id integer PRIMARY KEY autoincrement,SC_Title text,SC_Content text,SC_Time text"];
-	}
-	//--------用title匹配
-	NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM ShouCang_Table WHERE SC_Title=\'%@\'", self.CatTitle];
-	FMResultSet *rs = [LoadContentDB findinTable:sqlString];
+	[self _initView];
     
-	while ([rs next]) {
-		self.shoucangButton.selected = YES;
+    UISwipeGestureRecognizer *rightGR = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(rightGRAction)];
+    rightGR.direction = UISwipeGestureRecognizerDirectionRight;
+    [self.view addGestureRecognizer:rightGR];
+    
+    UISwipeGestureRecognizer *leftGR = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(leftGRAction)];
+    leftGR.direction = UISwipeGestureRecognizerDirectionLeft;
+    [self.view addGestureRecognizer:leftGR];
+}
+
+-(void)rightGRAction
+{
+    DLog(@"rightGRAction");
+    if (self.myWebView.canGoBack) {
+		[self.myWebView goBack];
 	}
+	else {
+		[self dismissViewControllerAnimated:YES completion: ^{
+		}];
+	}
+}
+
+-(void)leftGRAction
+{
+    DLog(@"leftGRAction");
+    if (self.myWebView.canGoForward) {
+		[self.myWebView goForward];
+	}
+}
+
+-(void)_initView
+{
+    //-----初始化数据库
+    
+    //--------检测是否收藏
+    if (UserIsLoaded) {
+        if (![LoadContentDB isTableOK:@"GaoKaoWang.sqlite"]) {
+            LoadContentDB = [[myDB sharedInstance] initWithDBName:@"GaoKaoWang.sqlite"];
+        }
+        //------创建表
+        if (![LoadContentDB isTableOK:@"ShouCang_Table"]) {
+            [LoadContentDB createTable:@"ShouCang_Table" withArguments:@"SC_Id integer PRIMARY KEY autoincrement,SC_Title text,SC_Content text,SC_Time text"];
+        }
+        //--------用title匹配
+        NSString *sqlString = [NSString stringWithFormat:@"SELECT * FROM ShouCang_Table WHERE SC_Title=\'%@\'", self.CatTitle];
+        FMResultSet *rs = [LoadContentDB findinTable:sqlString];
+        
+        while ([rs next]) {
+            self.shoucangButton.selected = YES;
+        }
+        
+    }
     
 	self.botView.image = [UIImage imageNamed:@"bottom.png"];
-    
-    
-    
     
 	//--------从收藏页面打开的话 catid = nil
 	if (!self.CatID) {
@@ -282,6 +323,8 @@
 		UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithCustomView:button];
         
 		self.navigationItem.rightBarButtonItem = rightItem;
+        
+        
 	}
     
     

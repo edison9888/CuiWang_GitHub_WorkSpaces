@@ -61,10 +61,13 @@
 //        
 //    }
     
-    self.userlabel.text = [ud stringForKey:@"nickname"];
-    self.userlabel.hidden = NO;
-    [self.LoadImageView setImageWithURL:[ud URLForKey:@"profileImage"]
-                       placeholderImage:[UIImage imageNamed:@"queen.png"]];
+    [self.LoadImageView setImage:[UIImage imageNamed:@"lijidenglu@2x.png"]];
+    if ([ud boolForKey:@"UserIsLoaded"]) {
+        self.userlabel.text = [ud stringForKey:@"nickname"];
+        self.userlabel.hidden = NO;
+        [self.LoadImageView setImageWithURL:[ud URLForKey:@"profileImage"]
+                           placeholderImage:[UIImage imageNamed:@"queen.png"]];
+    }
 }
 - (void)UesrClicked {
     

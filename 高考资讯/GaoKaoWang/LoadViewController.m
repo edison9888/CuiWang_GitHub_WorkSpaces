@@ -74,7 +74,7 @@
 #pragma mrak 获取栏目列表
 -(void)getDataFromURL
 {
-    NSURL *url = [NSURL URLWithString:@"http://27.112.1.16/padapi/chinnal.php?stypename=gaokao"];
+    NSURL *url = [NSURL URLWithString:@"http://www.gkk12.com/index.php?m=content&c=khdindex&a=gkkhdmenu"];
      ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
     [request startSynchronous];
     NSError *error = [request error];
@@ -168,7 +168,6 @@
 -(void)myLoadClickTask
 {
     //--------正则校验
-    
    
     
     BOOL isMobile = [CW_Tools isMobile:name];//是否是手机号码

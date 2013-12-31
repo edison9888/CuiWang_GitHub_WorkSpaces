@@ -183,39 +183,11 @@
     [self.navigationController pushViewController:dataVC animated:YES];
     
 }
-/**
- *    重建CV
 
--(void)buildCV
-{
-    
-    if (cv) {
-        [cv removeFromSuperview];
-    }
-    
-    if (isIPhone5) {
-        
-        cv=[[CloudView alloc] initWithFrame:CGRectMake(0, 160, 320, 409)];
-    } else {
-        cv=[[CloudView alloc] initWithFrame:CGRectMake(0, 160, 320, 309)];
-    }
-    cv.cloudDelegate = self;
-    
-    [self.view addSubview:cv];
-    
-    [self getDataFromUrl];
-    NSArray *labelARy =[NSArray arrayWithArray:keyWordArray];
-    if (labelARy.count > 0) {
-        
-        [cv reloadData:labelARy];
-    }
-}
-  */
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     [sphereView removeFromSuperview];
-    // Dispose of any resources that can be recreated.
 }
 
 @end

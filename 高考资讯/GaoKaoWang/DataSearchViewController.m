@@ -51,11 +51,12 @@
         urlstr = [NSString stringWithFormat:@"http://www.gkk12.com/index.php?m=content&c=khdindex&a=khdkeyword&keyword=%@",utf8ParamValue];
     
     NSURL *url = [NSURL URLWithString:urlstr];
-    __unsafe_unretained __block ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
-    [request setCompletionBlock:^{
-        // Use when fetching text data
-//        NSString *str = [request responseString];
-//        DLog(@"aaa \n%@",str);
+    
+    ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+    [request startSynchronous];
+    
+    NSError *error = [request error];
+    if (!error) {
         NSData *data = [request responseData];
         NSDictionary *titlerDic = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
         for (NSDictionary *dic in titlerDic) {
@@ -65,20 +66,19 @@
             content.cnID = [dic objectForKey:@"id"];
             content.cImage = [dic objectForKey:@"image"];
             [_list addObject:content];
+            //--------重置
+            [self.contentView reloadData];
         }
-        //--------重置
-        [self.contentView reloadData];
-    }];
-    [request setFailedBlock:^{
-        [ALToastView toastInView:self.view withText:@"连接服务器失败! "];
-    }];
-    [request startAsynchronous];
+    }
+        else {
+            [ALToastView toastInView:self.view withText:@"连接服务器失败! "];
+        }
     
     
-
+    }
     
     
-}
+    
 -(void)popback
 {
     CATransition *transition = [CATransition animation];

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>F7E795CD-D8CA-432D-9D32-8DA1162F7903</string>
+	<key>IDESourceControlProjectName</key>
+	<string>TaiQi-ExamQuestionBank</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>1456E753-DF60-4138-83EF-B26C3F188CD0</key>
+		<string>https://github.com/jdg/MBProgressHUD.git</string>
+		<key>5C80E9DF-5C94-4D4D-95AF-9EB36673E84F</key>
+		<string>https://github.com/cuiwang/cuiwang.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>TaiQi-ExamQuestionBank/TaiQi-ExamQuestionBank.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>1456E753-DF60-4138-83EF-B26C3F188CD0</key>
+		<string>../../ThirdSDK/MBProgressHUD</string>
+		<key>5C80E9DF-5C94-4D4D-95AF-9EB36673E84F</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/cuiwang/cuiwang.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>5C80E9DF-5C94-4D4D-95AF-9EB36673E84F</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>5C80E9DF-5C94-4D4D-95AF-9EB36673E84F</string>
+			<key>IDESourceControlWCCName</key>
+			<string>之前项目</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>1456E753-DF60-4138-83EF-B26C3F188CD0</string>
+			<key>IDESourceControlWCCName</key>
+			<string>MBProgressHUD</string>
+		</dict>
+	</array>
+</dict>
+</plist>

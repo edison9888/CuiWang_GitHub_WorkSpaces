@@ -13,6 +13,8 @@
 #import "AppDelegate.h"
 #import "GCDiscreetNotificationView.h"
 #import "TuiJianThumbClass.h"
+#import "GKListEasyCell.h"
+#import "GKListCell.h"
 #import <AudioToolbox/AudioToolbox.h>
 
 #define isTuiJian [self.title isEqualToString:@"推荐"]
@@ -31,28 +33,63 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
 	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
 	if (self) {
+        //--------注册缓存清理通知
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self selector:@selector(clearedCache) name:@"clearedCache" object:nil];
 		_list = [[NSMutableArray alloc] initWithCapacity:1];
 		readedSet = [[NSMutableSet alloc]initWithCapacity:10];
 		thumbDataArray = [[NSMutableArray alloc]initWithCapacity:3];
+        _bannerArray = [NSMutableArray array];
+        _bannerTextArray = [NSMutableArray array];
 	}
 	return self;
 }
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	//--------注册缓存清理通知
-	[[NSNotificationCenter defaultCenter]
-	 addObserver:self selector:@selector(clearedCache) name:@"clearedCache" object:nil];
-    
+	
+    //--------判断是否加载过视图
 	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
 	NSArray *myViewDidLoadAr = [ud objectForKey:@"myViewDidLoad"];
 	NSMutableArray *myViewDidLoadArr = [[NSMutableArray alloc]initWithArray:myViewDidLoadAr];
-    
 	if (![myViewDidLoadArr containsObject:self.title]) {
 		[myViewDidLoadArr addObject:self.title];
 		[ud setObject:myViewDidLoadArr forKey:@"myViewDidLoad"];
 		[ud synchronize];
 	}
+    
+    [self _initView];
+	//--------开始定时器
+	[self initTimer];
+    
+}
+/**
+ *    <#Description#>
+ */
+-(void)_initView
+{
+    //创建tableheadview
+    if (isTuiJian) {
+        
+        EScrollerView *bannerSC = [self createTuiJianTableHeaderView];
+        if (bannerSC != nil) {
+            self.tableViewList.tableHeaderView = bannerSC;
+        }
+    }
+    
+    //创建tablefootview
+    loadMoreButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    loadMoreButton.frame = CGRectMake(0, 0, ScreenWidth, 40);
+    loadMoreButton.backgroundColor = [UIColor whiteColor];
+    [loadMoreButton setTitle:@"上拉加载更多..." forState:UIControlStateNormal];
+    [loadMoreButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [loadMoreButton addTarget:self action:@selector(loadMore) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIActivityIndicatorView *activity = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activity.frame = CGRectMake(100, 10, 20, 20);
+    activity.tag = 2013;
+    [loadMoreButton addSubview:activity];
+    self.tableViewList.tableFooterView = loadMoreButton;
     
 	//--------下拉刷新
 	if (_refreshHeaderView == nil) {
@@ -61,13 +98,57 @@
 		[self.tableViewList addSubview:view];
 		_refreshHeaderView = view;
 	}
+}
+
+#pragma mark - 上拉加载
+-(void)loadMore
+{
+    [self startLoadMore];
     
-	//--------开始定时器
-	[self initTimer];
+    [self performSelector:@selector(stopLoadMore) withObject:nil afterDelay:2];
+}
+-(void)startLoadMore
+{
+    [loadMoreButton setTitle:@"加载中..." forState:UIControlStateNormal];
+    loadMoreButton.enabled = NO;
+    UIActivityIndicatorView *activity = (UIActivityIndicatorView *)[loadMoreButton viewWithTag:2013];
+    [activity startAnimating];
+}
+-(void)stopLoadMore
+{
+    [loadMoreButton setTitle:@"上拉加载更多..." forState:UIControlStateNormal];
+    loadMoreButton.enabled = YES;
+    UIActivityIndicatorView *activity = (UIActivityIndicatorView *)[loadMoreButton viewWithTag:2013];
+    [activity stopAnimating];
+}
+
+-(void)pullUp
+{
     
-    //    if (_list.count > 0) {
-    //        [self createTableFooter];
-    //    }
+}
+
+#pragma mark 创建 tableheaderview
+-(EScrollerView *)createTuiJianTableHeaderView
+{
+    [self getThumbData];
+
+    if (thumbDataArray.count == 0) {
+        return nil;
+    }
+    
+    for (int i = 0; i < thumbDataArray.count; i++) {
+        [self.bannerArray addObject:((TuiJianThumbClass *)thumbDataArray[i]).thumb];
+        [self.bannerTextArray addObject:((TuiJianThumbClass *)thumbDataArray[i]).title];
+    }
+    
+    EScrollerView *scroller = [[EScrollerView alloc] initWithFrameRect:CGRectMake(0, 0, ScreenWidth, 158)
+                                                            ImageArray:self.bannerArray
+                                                            TitleArray:self.bannerTextArray];
+    scroller.delegate = self;
+        
+        return scroller;
+        
+
 }
 
 #pragma mark 通知代理 清除了缓存
@@ -110,31 +191,10 @@
 
 #pragma mark 弹出非模态加载视图
 - (void)showMB {
-    //    [self addDataToViewISPullUp:NO];
-    
-    
 	UIView *thisView = self.view;
-    
-    if (!isNetOk) {
-        [CW_Tools ToastNotification:@"加载离线缓存数据中..." andView:thisView andLoading:YES andIsBottom:NO doSomething: ^{
-            if (isTuiJian) {
-                [self getThumbData];
-            }
+        [CW_Tools ToastNotification:@"正在努力加载中..." andView:thisView andLoading:YES andIsBottom:NO doSomething: ^{
+            [self addDataToViewISPullUp:NO];
         }];
-    } else {
-        
-        [CW_Tools ToastNotification:@"正在努力加载最新数据..." andView:thisView andLoading:YES andIsBottom:NO doSomething: ^{
-            if (isTuiJian) {
-                [self getThumbData];
-            }
-        }];
-    }
-    
-     [self addDataToViewISPullUp:NO];
-    //    GCDiscreetNotificationView *notificationView = [[GCDiscreetNotificationView alloc] initWithText:@"HAHAHA" showActivity:YES inPresentationMode:GCDiscreetNotificationViewPresentationModeTop inView:self.view];
-    //    [notificationView show:YES];
-    
-    //    [notificationView hideAnimated];
 }
 
 - (void)getThumbData {
@@ -166,7 +226,7 @@
 
 #pragma mark 更新数据
 - (void)addDataToViewISPullUp:(BOOL)up {
-	NSString *urlstr = [NSString stringWithFormat:@"http://27.112.1.16/padapi/hottitle.php?catid=%@", self.catid];
+	NSString *urlstr = [NSString stringWithFormat:@"http://www.gkk12.com/index.php?m=content&c=khdindex&a=getcatid&catid=%@", self.catid];
 	NSURL *url = [NSURL URLWithString:urlstr];
 //	__unsafe_unretained __block ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
 	
@@ -197,6 +257,7 @@
 	        content.cTitle = [dic objectForKey:@"title"];
 	        content.cnID = [dic objectForKey:@"catid"];
 	        content.cImage = [dic objectForKey:@"image"];
+            content.cCommntTime = [dic objectForKey:@"inputtime"];
 	        [_list addObject:content];
 		}
 	    //--------重置
@@ -263,14 +324,8 @@
 	[self.tableViewList reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return 1;
-}
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	if (isTuiJian) {
-		return _list.count + 1;
-	}
 	return _list.count;
 }
 /*
@@ -288,11 +343,6 @@
 }
 */
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (isTuiJian) {
-		if (indexPath.row == 0) {
-			return 158;
-		}
-	}
 	return 80;
 }
 
@@ -308,11 +358,19 @@
 	UIView *topV = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 320, 30)];
 	topV.backgroundColor = [UIColor clearColor];
     
-	topTimeLB = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, 315, 30)];
+	UILabel *topTimeLB = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, 315, 30)];
 	topTimeLB.backgroundColor = [UIColor clearColor];
-	NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
-	[formatter setDateFormat:@"   YYYY年 MM月 dd日"];
-	topTimeLB.text = [formatter stringFromDate:[NSDate date]];
+    
+    
+    
+    //实例化一个NSDateFormatter对象
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    //设定时间格式,这里可以设置成自己需要的格式
+    [dateFormatter setDateFormat:@"   yyyy年 MM月 dd日"];
+    //用[NSDate date]可以获取系统当前时间
+    NSString *currentDateStr = [dateFormatter stringFromDate:[NSDate date]];
+    
+	topTimeLB.text = currentDateStr;
 	topTimeLB.font = [UIFont systemFontOfSize:14.0];
 	topTimeLB.textColor = [CW_Tools colorFromHexRGB:@"868686"];
 	topTimeLB.backgroundColor = [CW_Tools colorFromHexRGB:@"f3f9f2"];
@@ -322,33 +380,35 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString *CellIdentifier = @"Cell"; //由于用了两种界面模式所以两个tag
-	static NSString *cellIdentifier = @"cell";
-//	static NSString *cellIdentifier2 = @"cell2";
-	UITableViewCell *cell;
-	if (isTuiJian) {
-		if (indexPath.row == 0) {
-			cell  =  (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-			if (cell == nil) {
+    static NSString *easyCellIndentifier = @"easyCellIndentifier";
+    static NSString *cellIndentifier = @"cellIndentifier";
+    int row = indexPath.row;
+    
+    contentClass *content = [_list objectAtIndex:row];
+    
+    if (isTuiJian) {
+        GKListCell *listCell = [tableView dequeueReusableCellWithIdentifier:cellIndentifier];
+        if (listCell == nil) {
+            listCell = [[[NSBundle mainBundle]loadNibNamed:@"GKListCell" owner:self options:nil]lastObject];
+        }
+        listCell.contentOBJ = content;
+        return listCell;
+    }
+    else {
+        GKListEasyCell *easyCell = [tableView dequeueReusableCellWithIdentifier:easyCellIndentifier];
+        if (easyCell == nil) {
+            easyCell = [[[NSBundle mainBundle]loadNibNamed:@"GKListEasyCell" owner:self options:nil] lastObject];
+        }
+        easyCell.content = content;
+        
+        return easyCell;
+    }
+    /*
+	UITableViewCell * cell  =  (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+			if (cell == nil)
+                {
 				cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-                //--------如果有缩略图
-                if (thumbDataArray.count > 0) {
                 
-                    self.bannerArray = @[ ((TuiJianThumbClass *)thumbDataArray[0]).thumb, ((TuiJianThumbClass *)thumbDataArray[1]).thumb, ((TuiJianThumbClass *)thumbDataArray[2]).thumb];
-                    self.bannerTextArray = @[((TuiJianThumbClass *)thumbDataArray[0]).title, ((TuiJianThumbClass *)thumbDataArray[1]).title, ((TuiJianThumbClass *)thumbDataArray[2]).title];
-                    EScrollerView *scroller = [[EScrollerView alloc] initWithFrameRect:CGRectMake(5, 0, 315, 158)
-                                                                            ImageArray:self.bannerArray
-                                                                            TitleArray:self.bannerTextArray];
-                    scroller.delegate = self;
-                    [cell.contentView addSubview:scroller];
-                }
-				
-			}
-		}
-		else {
-//			cell  =  (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier2];
-//			if (cell == nil) {
-				cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
                 UIImageView *cellImageV = [[UIImageView alloc]initWithFrame:CGRectMake(5, 5, 100, 70)];
                 cellImageV.tag = 2008;
                 
@@ -359,19 +419,19 @@
                 cellLabel.contentMode = UIViewContentModeScaleAspectFit;
                 cellLabel.textColor = [UIColor blackColor];
                 
+                
+                
                 [cell.contentView addSubview:cellImageV];
 
                 [cell.contentView addSubview:cellLabel];
 
-//			}
+			}
             
-			contentClass *content = [_list objectAtIndex:indexPath.row - 1];
+			contentClass *content = [_list objectAtIndex:row];
 			if (content.cImage.length > 0) {
                 
                 UIImageView *cellIV = (UIImageView *)[cell.contentView viewWithTag:2008];
-                [cellIV setImageWithURL:[NSURL URLWithString:content.cImage] placeholderImage:[UIImage imageNamed:@"comm_header.png"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType) {
-//                    DLog(@"error  %@",[error localizedDescription]);
-                }];
+                [cellIV setImageWithURL:[NSURL URLWithString:content.cImage]];
                 
                 UILabel *cellLB = (UILabel *)[cell.contentView viewWithTag:2009];
                 if ([readedSet containsObject:indexPath]) {
@@ -379,36 +439,16 @@
                 }
                cellLB.text = content.cTitle;
 			} else {
-                cell.textLabel.font = [UIFont systemFontOfSize:20.0f];
-                cell.textLabel.numberOfLines = 0;
-                cell.textLabel.contentMode = UIViewContentModeScaleAspectFit;
-                cell.textLabel.textColor = [UIColor blackColor];
+                
                 if ([readedSet containsObject:indexPath]) {
                     cell.textLabel.textColor = [UIColor grayColor];
                 }
                 cell.textLabel.text = content.cTitle;
             }
 			
-		}
-	}
-	else {
-		contentClass *content = [_list objectAtIndex:indexPath.row];
-		cell  =  (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-		if (cell == nil) {
-			cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-		}
-        
-		cell.textLabel.numberOfLines = 0;
-        cell.textLabel.font = [UIFont systemFontOfSize:20.0f];
-		cell.textLabel.contentMode = UIViewContentModeScaleAspectFit;
-		cell.textLabel.textColor = [UIColor blackColor];
-		if ([readedSet containsObject:indexPath]) {
-			cell.textLabel.textColor = [UIColor grayColor];
-		}
-		cell.textLabel.text = content.cTitle;
-	}
     
 	return cell;
+     */
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -416,13 +456,8 @@
 	
     if (_list.count > 0) {
         contentClass *selectContent = nil;
-	if (isTuiJian) {
-		selectContent = [_list objectAtIndex:indexPath.row - 1];
-	}
-	else {
 		selectContent = [_list objectAtIndex:indexPath.row];
-	}
-	[self hasReaded:indexPath];
+        [self hasReaded:indexPath];
 	
 	[self.delegate OpenCVCByCID:selectContent.cnID NID:selectContent.cID Title:selectContent.cTitle Image:selectContent.cImage];
         }
@@ -455,11 +490,11 @@
  */
 - (void)doneLoadingTableViewData {
 	_reloading = NO;
-//	//--------清楚缓存
-//    if (isNetOk) {
-//        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-//        [appDelegate.asiCache clearCachedResponsesForStoragePolicy:ASICachePermanentlyCacheStoragePolicy];
-//    }
+	//--------清楚缓存
+    if (isNetOk) {
+        AppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        [appDelegate.asiCache clearCachedResponsesForStoragePolicy:ASICachePermanentlyCacheStoragePolicy];
+    }
     
 	[_refreshHeaderView egoRefreshScrollViewDataSourceDidFinishedLoading:self.tableViewList];
 	[self showBarView];
@@ -479,14 +514,19 @@
  *    @param decelerate <#decelerate description#>
  */
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    //    if( !_loadingFull&&!_loadingMore && scrollView.contentOffset.y > ((scrollView.contentSize.height - scrollView.frame.size.height)))
-    //        {
-    //        DLog(@"上拉刷新");
-    //        [self loadDataBegin];
-    //        }
+    
     //    else {
 	[_refreshHeaderView egoRefreshScrollViewDidEndDragging:scrollView];
+    
     //    }
+    //--------需要判断是否还能加载 
+    float offset = scrollView.contentOffset.y;
+    float contentHeight = scrollView.contentSize.height;
+    float sub = contentHeight - offset;
+    if (scrollView.height - sub > 30) {
+        DLog(@"上拉刷新");
+        [self loadMore];
+    }
 }
 
 #pragma mark EGORefreshTableHeaderDelegate Methods
@@ -516,6 +556,10 @@
 		[_barView addSubview:label];
 	}
 	UILabel *label = (UILabel *)[_barView viewWithTag:100];
+    	[label sizeToFit];
+    CGRect frame = label.frame;
+	frame.origin = CGPointMake((_barView.frame.size.width - frame.size.width) / 2, (_barView.frame.size.height - frame.size.height) / 2);
+	label.frame = frame;
 	//    label.text = [NSString stringWithFormat:@"%d条微博更新",10];
     
     if (isNetOk) {
@@ -524,18 +568,17 @@
     } else {
          label.text = @"没有网络!";
     }
-	[label sizeToFit];
-	CGRect frame = label.frame;
-	frame.origin = CGPointMake((_barView.frame.size.width - frame.size.width) / 2, (_barView.frame.size.height - frame.size.height) / 2);
-	label.frame = frame;
+
+	
 	//    [self performSelectorOnMainThread:@selector(updateUI) withObject:nil waitUntilDone:YES];
 	[self performSelector:@selector(updateUI) withObject:nil afterDelay:0.0];
 }
 
 - (void)updateUI {
+    
 	[UIView animateWithDuration:0.6 animations: ^{
 	    CGRect frame = _barView.frame;
-	    frame.origin.y = 1;
+	    frame.origin.y = 1;//barview从-30 移动到 1
 	    _barView.frame = frame;
 	} completion: ^(BOOL finished) {
 	    if (finished) {
@@ -543,15 +586,16 @@
 	        [UIView setAnimationDelay:2.0];
 	        [UIView setAnimationDuration:0.6];
 	        CGRect frame = _barView.frame;
-	        frame.origin.y = -30;
+	        frame.origin.y = -30; //从1 移动回 -30
 	        _barView.frame = frame;
 	        [UIView commitAnimations];
             
-	        //            [self createTableFooter];
 		}
 	}];
     
-    
+	/**
+	 *    播放声音
+	 */
 	NSString *path = [[NSBundle mainBundle] pathForResource:@"msgcome" ofType:@"wav"];
 	NSURL *url = [NSURL fileURLWithPath:path];
 	SystemSoundID soundId;
@@ -568,44 +612,7 @@
 	return [NSDate date]; // should return date data source was last changed
 }
 
-#pragma mark -上拉刷新
-// 开始加载数据
-- (void)loadDataBegin {
-	if (_loadingMore == NO) {
-		_loadingMore = YES;
-        
-		[CW_Tools ToastNotification:@"内容下载中..." andView:self.tableViewList.tableFooterView andLoading:YES andIsBottom:NO doSomething: ^{
-		    [self addDataToViewISPullUp:YES];
-		}];
-	}
-}
 
-// 加载数据完毕
-- (void)loadDataEnd {
-	_loadingMore = NO;
-	if (_list.count > 0) {
-		[self createTableFooter];
-	}
-}
-
-// 创建表格底部
-- (void)createTableFooter {
-	self.tableViewList.tableFooterView = nil;
-    
-	UIView *tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(5.0f, 0.0f, self.tableViewList.bounds.size.width, 40.0f)];
-	UILabel *loadMoreText = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 116.0f, 40.0f)];
-    
-	[loadMoreText setCenter:tableFooterView.center];
-    
-	[loadMoreText setFont:[UIFont fontWithName:@"Helvetica Neue" size:14]];
-	[loadMoreText setText:@"上拉显示更多内容"];
-	if (_loadingFull) {
-		[loadMoreText setText:@"已经是最后一条了!"];
-	}
-    
-	[tableFooterView addSubview:loadMoreText];
-	self.tableViewList.tableFooterView = tableFooterView;
-}
 
 #pragma mark -
 #pragma mark MBProgressHUDDelegate methods

@@ -1,0 +1,42 @@
+//
+// Prefix header for all source files of the 'TaiQi-ExamQuestionBank' target in the 'TaiQi-ExamQuestionBank' project
+//
+
+#import <Availability.h>
+
+
+///DEBUG  模式下打印日志,当前行
+#ifdef DEBUG
+#define MCRelease(x) [x release]
+#define DLog(...) NSLog(@"DLog日志:\n-*- 方法  :  %s\n-*- 行号  :  %d\n-*- 输出  :  %@", __PRETTY_FUNCTION__, __LINE__, [NSString    stringWithFormat:__VA_ARGS__])
+#else
+#define MCRelease(x) [x release], x = nil
+#define DLog(...) do { } while (0)
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+    #import <AGCommon/UIView+Common.h>
+    #import "ASIHTTPRequest.h"
+    #import "ASIFormDataRequest.h"
+    #import "JSONKit.h"
+    #import "GRAlertView.h"
+    #import "RegexKitLite.h"
+    #import <ShareSDK/ShareSDK.h>
+    #import <ShareSDK/ISSUserInfo.h>
+    #import <AGCommon/UIView+Common.h>
+    #import <AGCommon/UIColor+Common.h>
+    #import <QuartzCore/QuartzCore.h>
+    #import "MBProgressHUD.h"
+    #import "FMDatabase.h"
+    #import "TPKeyboardAvoidingTableView.h"
+    #import"BaseViewController.h"
+    #import"CommClass.h"
+#endif
+#define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]

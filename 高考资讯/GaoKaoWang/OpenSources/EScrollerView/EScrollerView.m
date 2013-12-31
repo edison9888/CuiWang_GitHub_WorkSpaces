@@ -39,7 +39,7 @@
 		imageArray=[[NSArray arrayWithArray:tempArray] retain];
 		viewSize=rect;
         NSUInteger pageCount=[imageArray count];
-        scrollView=[[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, viewSize.size.width, viewSize.size.height)];
+        scrollView=[[UIScrollView alloc]initWithFrame:CGRectMake(5, 0, viewSize.size.width, viewSize.size.height)];
         scrollView.pagingEnabled = YES;
         scrollView.contentSize = CGSizeMake(viewSize.size.width * pageCount, viewSize.size.height);
         scrollView.showsHorizontalScrollIndicator = NO;
@@ -74,7 +74,7 @@
         
         
         //说明文字层
-        UIView *noteView=[[UIView alloc] initWithFrame:CGRectMake(0, self.bounds.size.height-33,self.bounds.size.width,33)];
+        UIView *noteView=[[UIView alloc] initWithFrame:CGRectMake(5, self.bounds.size.height-33,self.bounds.size.width,33)];
         [noteView setBackgroundColor:[UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:0.5]];
         
         float pageControlWidth=(pageCount-2)*10.0f+40.f;

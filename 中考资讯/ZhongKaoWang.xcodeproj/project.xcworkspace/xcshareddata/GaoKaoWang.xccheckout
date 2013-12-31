@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>96FE1ADE-E1CB-4BF8-8C2B-9CBA296C1E4F</string>
+	<key>IDESourceControlProjectName</key>
+	<string>GaoKaoWang</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>C83C8D16-C8B8-4E65-87A1-9BC947C30397</key>
+		<string>https://github.com/cuiwang/CuiWang_GitHub_WorkSpaces.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>高考资讯/GaoKaoWang.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>C83C8D16-C8B8-4E65-87A1-9BC947C30397</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/cuiwang/CuiWang_GitHub_WorkSpaces.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>C83C8D16-C8B8-4E65-87A1-9BC947C30397</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>C83C8D16-C8B8-4E65-87A1-9BC947C30397</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CuiWang_GitHub_WorkSpaces</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -14,6 +14,8 @@
     NSMutableArray *ShoucangArray;
     UIImageView *nothing;
     UILabel *lb;
+    BOOL userIsLoaded;
+    UIButton *button;
 }
 @property (strong, nonatomic) IBOutlet UITableView *myShouCangTableView;
 
